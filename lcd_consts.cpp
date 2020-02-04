@@ -4,78 +4,32 @@
 #include "lcd_consts.h"
 #include "utils.h"
 
-#define LCD_I2C_PORT 0x3F
-#define LCD_COL_NO 16
-#define LCD_ROW_NO 2
-#define LCD_TEMP_ICON 0
-#define LCD_HUMIDITY_ICON 1
-#define LCD_DEGREE_ICON 2
-#define LCD_PRESSURE_ICON 3
-#define LCD_TIME_ICON 4
-#define LCD_DATE_ICON 5
+#define LCD_I2C_PORT              0x3F
+#define LCD_COL_NO                16
+#define LCD_ROW_NO                2
 
-byte tempIconBytes[8] = {
-    0b00100,
-    0b00110,
-    0b00100,
-    0b00110,
-    0b00100,
-    0b01110,
-    0b01110,
-    0b00000};
+#define LCD_TEMP_ICON             0
+#define LCD_TEMP_ICON_TMPL        0x04060406040E0E00
 
-byte humidityIconBytes[8] = {
-    0b00100,
-    0b00100,
-    0b01110,
-    0b01110,
-    0b10111,
-    0b10111,
-    0b01110,
-    0b00000};
+#define LCD_HUMIDITY_ICON         1
+#define LCD_HUMIDITY_ICON_TMPL    0x04040E0E17170E00
 
-byte degreeIconBytes[8] = {
-    0b00010,
-    0b00101,
-    0b00010,
-    0b00000,
-    0b00000,
-    0b00000,
-    0b00000,
-    0b00000};
+#define LCD_DEGREE_ICON           2
+#define LCD_DEGREE_ICON_TMPL      0x0205020000000000
 
-byte pressureIconBytes[8] = {
-    0b00000,
-    0b00100,
-    0b00100,
-    0b00100,
-    0b10101,
-    0b01110,
-    0b00100,
-    0b00000};
+#define LCD_PRESSURE_ICON         3
+#define LCD_PRESSURE_ICON_TMPL    0x00040404150E0400
 
-byte timeIconBytes[8] = {
-    0b00000,
-    0b01110,
-    0b10101,
-    0b10111,
-    0b10001,
-    0b01110,
-    0b00000,
-    0b00000};
+#define LCD_TIME_ICON             4
+#define LCD_TIME_ICON_TMPL        0x000E1517110E0000
 
-byte dateIconBytes[8] = {
-    0b11111,
-    0b10001,
-    0b10101,
-    0b11101,
-    0b10101,
-    0b10101,
-    0b10001,
-    0b11111};
+#define LCD_DATE_ICON             5
+#define LCD_DATE_ICON_TMPL        0x1F11151D1515111F
+
 
 LiquidCrystal_I2C lcd(LCD_I2C_PORT, LCD_COL_NO, LCD_ROW_NO);
 
+Icon prepareIcon(uint64_t iconTempl);
 void printDate(MeasuredData *data);
 void printTime(MeasuredData *data);
 void printTemperature(MeasuredData *data);
@@ -87,12 +41,12 @@ void initLCD()
   lcd.init();
   lcd.backlight();
 
-  lcd.createChar(LCD_TEMP_ICON, tempIconBytes);
-  lcd.createChar(LCD_HUMIDITY_ICON, humidityIconBytes);
-  lcd.createChar(LCD_DEGREE_ICON, degreeIconBytes);
-  lcd.createChar(LCD_PRESSURE_ICON, pressureIconBytes);
-  lcd.createChar(LCD_TIME_ICON, timeIconBytes);
-  lcd.createChar(LCD_DATE_ICON, dateIconBytes);
+  lcd.createChar(LCD_TEMP_ICON, prepareIcon(LCD_TEMP_ICON_TMPL).tmpl);
+  lcd.createChar(LCD_HUMIDITY_ICON, prepareIcon(LCD_HUMIDITY_ICON_TMPL).tmpl);
+  lcd.createChar(LCD_DEGREE_ICON, prepareIcon(LCD_DEGREE_ICON_TMPL).tmpl);
+  lcd.createChar(LCD_PRESSURE_ICON, prepareIcon(LCD_PRESSURE_ICON_TMPL).tmpl);
+  lcd.createChar(LCD_TIME_ICON, prepareIcon(LCD_TIME_ICON_TMPL).tmpl);
+  lcd.createChar(LCD_DATE_ICON, prepareIcon(LCD_DATE_ICON_TMPL).tmpl);
 }
 
 void printLCDWelcome()
@@ -127,6 +81,21 @@ void printLCDInfo(MeasuredData *data)
   printPressure(data);
 
   delay(1000);
+}
+
+Icon prepareIcon(uint64_t iconTempl) {
+  Icon icon;
+
+  icon.tmpl[0] = (iconTempl >> 56) & 0xFF;
+  icon.tmpl[1] = (iconTempl >> 48) & 0xFF;
+  icon.tmpl[2] = (iconTempl >> 40) & 0xFF; 
+  icon.tmpl[3] = (iconTempl >> 32) & 0xFF; 
+  icon.tmpl[4] = (iconTempl >> 24) & 0xFF; 
+  icon.tmpl[5] = (iconTempl >> 16) & 0xFF; 
+  icon.tmpl[6] = (iconTempl >> 8) & 0xFF;
+  icon.tmpl[7] = (iconTempl >> 0) & 0xFF;
+
+  return icon;
 }
 
 void printDate(MeasuredData *data)

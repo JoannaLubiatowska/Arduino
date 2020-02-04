@@ -18,10 +18,10 @@ MeasuredData data;
 
 void setup()
 {
-	initLCD();
 	initSerial();
-	printLCDWelcome();
 	printSerialWelcome();
+	initLCD();
+	printLCDWelcome();
 
 	dht.begin();
 	bmp.begin();

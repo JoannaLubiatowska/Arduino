@@ -3,13 +3,13 @@
 
 #include "sd_card.h"
 
-const int chipSelect = 10;
+#define CHIP_SELECT_PIN             10
 
 void saveIntoFile(File file, MeasuredData *data);
 void saveDateTime(RTCDateTime dt, File file);
 
 void initSDCard() {
-    if (!SD.begin(chipSelect)) {
+    if (!SD.begin(CHIP_SELECT_PIN)) {
         Serial.println("Error during SD card initialization!!!");
         return;
     }
