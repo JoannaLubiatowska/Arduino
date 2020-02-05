@@ -2,10 +2,15 @@
 #include <DHT.h>
 #include <Adafruit_BMP085.h>
 
+#include "parameters.h"
 #include "lcd_consts.h"
 #include "serial.h"
-#include "sd_card.h"
 #include "utils.h"
+
+#if SD_CARD_ENABLED
+#include "sd_card.h"
+#endif
+
 
 #define DHT_PIN 2
 #define DHT_TYPE DHT11
@@ -32,7 +37,9 @@ void setup()
 	Serial.print(" ");
 	Serial.println(__TIME__);
 
+#if SD_CARD_ENABLED
 	initSDCard();
+#endif
 
 	delay(2000);
 }
@@ -49,7 +56,11 @@ void loop()
 	}
 
 	printSerialInfo(&data);
+
+#if SD_CARD_ENABLED
 	saveOnSDCard("dane.csv", &data);
+#endif
+
 	printLCDInfo(&data);
 }
 
@@ -70,7 +81,10 @@ void readMeasuredData()
 		data.readFailed = false;
 	}
 
+#if HEAT_INDEX_ENABLED
 	data.heatIndexF = dht.computeHeatIndex(data.tempF, data.humidity);
 	data.heatIndexC = dht.computeHeatIndex(data.tempF, data.humidity, false);
-	data.pressure = bmp.readPressure() / 100;
+#endif
+
+	data.pressure = bmp.readPressure() / 100.0;
 }
