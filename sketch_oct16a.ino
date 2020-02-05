@@ -6,9 +6,13 @@
 #include "serial.h"
 #include "sd_card.h"
 #include "utils.h"
+#include "web_client.h"
 
-#define DHT_PIN 2
-#define DHT_TYPE DHT11
+#define DHT_PIN 			2
+#define DHT_TYPE 			DHT11
+
+#define DEBUG				0
+#define LOCAL				1
 
 DHT dht(DHT_PIN, DHT_TYPE);
 Adafruit_BMP085 bmp;
@@ -33,14 +37,21 @@ void setup()
 	Serial.println(__TIME__);
 
 	initSDCard();
+	setupWiFiConnection();
 
 	delay(2000);
 }
 
 void loop()
 {
+	#if DEBUG == 1
+		Serial.println("Read measured data");
+	#endif
 	readMeasuredData();
 
+	#if DEBUG == 1
+		Serial.println("Check measured data correct");
+	#endif
 	if (data.readFailed)
 	{
 		Serial.println("Failed to read from DHT sensor!");
@@ -50,24 +61,43 @@ void loop()
 
 	printSerialInfo(&data);
 	saveOnSDCard("dane.csv", &data);
+	sendData(&data);
 	printLCDInfo(&data);
 }
 
 void readMeasuredData()
 {
+	data.readFailed = false;
 	data.dt = clock.getDateTime();
 	data.humidity = dht.readHumidity();
-	data.tempC = dht.readTemperature();
-	data.tempF = dht.readTemperature(true);
-
-	if (isnan(data.humidity) || isnan(data.tempC) || isnan(data.tempF))
+	#if DEBUG == 1
+		Serial.print("Readed humidity: ");
+		Serial.println(data.humidity);
+	#endif
+	if (isnan(data.humidity))
 	{
 		data.readFailed = true;
 		return;
 	}
-	else
+	data.tempC = dht.readTemperature();
+	#if DEBUG == 1
+		Serial.print("Readed temperature C: ");
+		Serial.println(data.tempC);
+	#endif
+	if (isnan(data.tempC))
 	{
-		data.readFailed = false;
+		data.readFailed = true;
+		return;
+	}
+	data.tempF = dht.readTemperature(true);
+	#if DEBUG == 1
+		Serial.print("Readed temperature F: ");
+		Serial.println(data.tempF);
+	#endif
+	if (isnan(data.tempF))
+	{
+		data.readFailed = true;
+		return;
 	}
 
 	data.heatIndexF = dht.computeHeatIndex(data.tempF, data.humidity);

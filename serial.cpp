@@ -32,10 +32,6 @@ void printSerialInfo(MeasuredData *data)
 	Serial.print(data->tempC);
 	Serial.print(" °C ");
 	Serial.print(data->tempF);
-	Serial.print(" °F\nHeat index: ");
-	Serial.print(data->heatIndexC);
-	Serial.print(" °C ");
-	Serial.print(data->heatIndexF);
 	Serial.print(" °F\nPressure: ");
 	Serial.print(data->pressure);
 	Serial.print(" hPa\n\n");
