@@ -3,8 +3,9 @@
 
 #include "utils.h"
 
-struct Icon {
-    uint8_t tmpl[8];
+union Icon {
+    uint64_t tmplNumber;
+    uint8_t tmplArray[8];
 };
 
 void initLCD();

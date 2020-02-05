@@ -9,22 +9,23 @@
 #define LCD_ROW_NO                2
 
 #define LCD_TEMP_ICON             0
-#define LCD_TEMP_ICON_TMPL        0x04060406040E0E00
+#define LCD_TEMP_ICON_TMPL        0x000E0E0406040604
+
 
 #define LCD_HUMIDITY_ICON         1
-#define LCD_HUMIDITY_ICON_TMPL    0x04040E0E17170E00
+#define LCD_HUMIDITY_ICON_TMPL    0x000E17170E0E0404
 
 #define LCD_DEGREE_ICON           2
-#define LCD_DEGREE_ICON_TMPL      0x0205020000000000
+#define LCD_DEGREE_ICON_TMPL      0x0000000000020502
 
 #define LCD_PRESSURE_ICON         3
-#define LCD_PRESSURE_ICON_TMPL    0x00040404150E0400
+#define LCD_PRESSURE_ICON_TMPL    0x00040E1504040400
 
 #define LCD_TIME_ICON             4
-#define LCD_TIME_ICON_TMPL        0x000E1517110E0000
+#define LCD_TIME_ICON_TMPL        0x00000E1117150E00
 
 #define LCD_DATE_ICON             5
-#define LCD_DATE_ICON_TMPL        0x1F11151D1515111F
+#define LCD_DATE_ICON_TMPL        0x1F1115151D15111F
 
 
 LiquidCrystal_I2C lcd(LCD_I2C_PORT, LCD_COL_NO, LCD_ROW_NO);
@@ -41,12 +42,12 @@ void initLCD()
   lcd.init();
   lcd.backlight();
 
-  lcd.createChar(LCD_TEMP_ICON, prepareIcon(LCD_TEMP_ICON_TMPL).tmpl);
-  lcd.createChar(LCD_HUMIDITY_ICON, prepareIcon(LCD_HUMIDITY_ICON_TMPL).tmpl);
-  lcd.createChar(LCD_DEGREE_ICON, prepareIcon(LCD_DEGREE_ICON_TMPL).tmpl);
-  lcd.createChar(LCD_PRESSURE_ICON, prepareIcon(LCD_PRESSURE_ICON_TMPL).tmpl);
-  lcd.createChar(LCD_TIME_ICON, prepareIcon(LCD_TIME_ICON_TMPL).tmpl);
-  lcd.createChar(LCD_DATE_ICON, prepareIcon(LCD_DATE_ICON_TMPL).tmpl);
+  lcd.createChar(LCD_TEMP_ICON, prepareIcon(LCD_TEMP_ICON_TMPL).tmplArray);
+  lcd.createChar(LCD_HUMIDITY_ICON, prepareIcon(LCD_HUMIDITY_ICON_TMPL).tmplArray);
+  lcd.createChar(LCD_DEGREE_ICON, prepareIcon(LCD_DEGREE_ICON_TMPL).tmplArray);
+  lcd.createChar(LCD_PRESSURE_ICON, prepareIcon(LCD_PRESSURE_ICON_TMPL).tmplArray);
+  lcd.createChar(LCD_TIME_ICON, prepareIcon(LCD_TIME_ICON_TMPL).tmplArray);
+  lcd.createChar(LCD_DATE_ICON, prepareIcon(LCD_DATE_ICON_TMPL).tmplArray);
 }
 
 void printLCDWelcome()
@@ -83,17 +84,10 @@ void printLCDInfo(MeasuredData *data)
   delay(1000);
 }
 
-Icon prepareIcon(uint64_t iconTempl) {
+Icon prepareIcon(uint64_t iconTmpl) {
   Icon icon;
 
-  icon.tmpl[0] = (iconTempl >> 56) & 0xFF;
-  icon.tmpl[1] = (iconTempl >> 48) & 0xFF;
-  icon.tmpl[2] = (iconTempl >> 40) & 0xFF; 
-  icon.tmpl[3] = (iconTempl >> 32) & 0xFF; 
-  icon.tmpl[4] = (iconTempl >> 24) & 0xFF; 
-  icon.tmpl[5] = (iconTempl >> 16) & 0xFF; 
-  icon.tmpl[6] = (iconTempl >> 8) & 0xFF;
-  icon.tmpl[7] = (iconTempl >> 0) & 0xFF;
+  icon.tmplNumber = iconTmpl;
 
   return icon;
 }
